@@ -340,6 +340,10 @@ curl -X 'GET' \
   -H 'accept: */*'
   ```
   **Response:** JSON data of all application refereences sorted by refrence_order
+#
+## Swagger Documentation
+
+We have also implemented Swagger documentation for the APIs. You can access it through the following link: [Swagger Documentation](http://localhost:3000/api/v1/swagger-ui.html)
 
 
   
