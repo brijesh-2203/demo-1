@@ -273,6 +273,75 @@ curl -X 'PUT' \
 }'
   ```
   **Response:** Status update from INGESTION_IN_PROGRESS to INGESTION_COMPLETED
+
+  #
+
+## Ingestion Request Note
+
+### 1. Add a Note to Ingestion Request
+Add a new note to a specific ingestion request.
+
+**Endpoint:** `POST /api/v1/ingestion_requests/16/notes`
+
+**Request:**
+```sh
+curl -X 'POST' \
+  'http://localhost:3000/api/v1/ingestion_requests/16/notes' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "notes": "demoNotes"
+}'
+
+  ```
+  **Response:** JSON data of added note
+
+### 2. Update Ingestion Request Note by ID
+Update a note on a specific ingestion request.
+
+**Endpoint:** `PUT /api/v1/ingestion_requests/16/notes/5`
+
+**Request:**
+```sh
+curl -X 'PUT' \
+  'http://localhost:3000/api/v1/ingestion_requests/16/notes/5' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "notes": "updatedNotes"
+}'
+  ```
+  **Response:** JSON data of updated note
+
+### 3.  Delete Ingestion Request Note by ID
+Delete a note from a specific ingestion request.
+
+**Endpoint:** `DELETE /api/v1/ingestion_requests/16/notes/5`
+
+**Request:**
+```sh
+curl -X 'DELETE' \
+  'http://localhost:3000/api/v1/ingestion_requests/16/notes/5' \
+  -H 'accept: */*'
+  ```
+  **Response:** Deleted the note successfully
+
+  #
+## Application Reference
+### 1.  Get Application References
+Retrieve a list of application references.
+
+**Endpoint:** `GET /api/v1/application_references`
+
+**Request:**
+```sh
+curl -X 'GET' \
+  'http://localhost:3000/api/v1/application_references' \
+  -H 'accept: */*'
+  ```
+  **Response:** JSON data of all application refereences sorted by refrence_order
+
+
   
 
 
