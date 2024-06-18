@@ -1,353 +1,80 @@
 
-# Ingestion Request API
+# Ingestion Request API Integration
 
-## Ingestion Request
+### Introduction
+This document provides guidance on integrating the Ingestion Request API with your Angular project. It covers setting up CORS (Cross-Origin Resource Sharing), configuring database connections, and ensuring seamless communication between the frontend and backend modules.
 
-### 1. Create Ingestion Request
-Submit a new ingestion request.
-
-
-**Endpoint:** `POST /api/v1/ingestion_requests?submit=false`
-
-**Request:**
+## Environment Setup
+Before proceeding with the integration, ensure you have the following prerequisites installed:
+* **Node.js and npm**: Ensure Node.js is installed on your system.
+* **Angular CLI**: Install Angular CLI globally using npm if not already installed:
 ```sh
-curl -X 'POST' \
-  'http://localhost:3000/api/v1/ingestion_requests?submit=false' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "requesterName": "John Doe",
-  "requesterMudid": "JD12345",
-  "requesterEmail": "john.doe@example.com",
-  "datasetName": "Clinical Trial Data",
-  "datasetSmeName": "Jane Smith",
-  "datasetSmeMudid": "JS54321",
-  "datasetSmeEmail": "jane.smith@example.com",
-  "requestRationaleReason": "For statistical analysis",
-  "datasetOriginSource": "Internal Research",
-  "currentDataLocationRef": "Data Warehouse",
-  "dataLocationPath": "/data/warehouse/clinical_trials",
-  "meteorSpaceDominoUsageFlag": true,
-  "ihdFlag": false,
-  "datasetRequiredForRef": "Exploration",
-  "estimatedDataVolumeRef": "500GB",
-  "dataRefreshFrequency": "Monthly",
-  "analysisInitDt": "2024-01-01T00:00:00Z",
-  "analysisEndDt": "2024-12-31T23:59:59Z",
-  "dtaContractCompleteFlag": true,
-  "dtaExpectedCompletionDate": "2024-06-30T00:00:00Z",
-  "dataCategoryRefs": ["Clinical", "Genomics"],
-  "datasetTypeRef": "Clinical Trial Data",
-  "studyIds": ["ST123", "ST456"],
-  "datasetOwnerName": "Alice Johnson",
-  "datasetOwnerMudid": "AJ67890",
-  "datasetOwnerEmail": "alice.johnson@example.com",
-  "datasetStewardName": "Bob Williams",
-  "datasetStewardMudid": "BW09876",
-  "datasetStewardEmail": "bob.williams@example.com",
-  "contractPartner": "XYZ Pharmaceuticals",
-  "retentionRules": "7 years",
-  "retentionRulesContractDate": "2024-01-01T00:00:00Z",
-  "usageRestrictions": ["Internal Use Only", "Confidential"],
-  "userRestrictions": ["Role-Based Access", "Restricted Access"],
-  "informationClassificationTypeRef": "Confidential",
-  "piiTypeRef": "None",
-  "therapyAreas": ["Cardiology", "Neurology"],
-  "techniqueAndAssays": ["PCR", "ELISA"],
-  "indications": ["Hypertension", "Alzheimer'\''s Disease"],
-  "targetIngestionStartDate": "2024-07-01T00:00:00Z",
-  "targetIngestionEndDate": "2024-07-31T23:59:59Z",
-  "targetPath": "/data/ingestion/clinical_trials",
-  "datasetTypeIngestionRef": "Batch",
-  "guestUsersEmail": ["guest1@example.com", "guest2@example.com"],
-  "whitelistIpAddresses": ["192.168.1.1", "192.168.1.2"],
-  "externalStagingContainerName": "staging-container",
-  "domainRequestId": "DR78901",
-  "externalDataSourceLocation": "/external/source/location",
-  "gskAccessSourceLocationRef": "GSK Internal Server",
-  "externalSourceSecretKeyName": "external-secret-key"
+npm install -g @angular/cli
+```
+
+## Backend Configuration
+### CORS Configuration
+To allow your Angular application to communicate with the backend API, configure CORS settings in your backend application. Modify the `ApplicationConfiguration.java` class file as follows:
+```sh
+@Configuration
+public class ApplicationConfiguration implements WebMvcConfigurer {
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:4200") // Update with your Angular application's domain and port
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Add other HTTP methods as needed
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
 }
-'
+
 ```
-**Response:**  JSON object with details of the ingestion request.
+**Note:** Update `allowedOrigins` with your Angular application's domain and port. Add any additional HTTP methods under `allowedMethods` that your application requires.
 
-### 2. Get Ingestion Request by ID
-Retrieve details of a specific ingestion request.
-
-**Endpoint:** `GET /api/v1/ingestion_requests/17`
-
-**Request:**
+#
+## Frontend Integration
+### API Configuration
+To connect your Angular application with the backend API, update the `app.service.ts` file located in src/app directory:
 ```sh
-curl -X 'GET' \
- 'http://localhost:3000/api/v1/ingestion_requests/17' \
- -H 'accept: */*'
- ```
- **Response:**  JSON object with details of the ingestion request.
+import { HttpBackend, HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import { ApplicationReference, DecisionRequestDTO, IngestionRequest, IngestionRequestDetails } from './models/models';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AppService {
+
+  private url = 'http://localhost:3000/api/v1/';
 
 
-### 3. Update Ingestion Request by ID
-Update details of a specific ingestion request.
+  // Example method to fetch data from the API
+  getRequestById(id: any): Observable<IngestionRequestDetails> {
+    return this.httpWithoutInterceptor.get<any>(`${this.url}ingestion_requests/${id}`)
+  }
 
-**Endpoint:** `PUT /api/v1/ingestion_requests/17?submit=false`
+}
 
-**Request:**
-```sh
-curl -X 'PUT' \
-  'http://localhost:3000/api/v1/ingestion_requests/17?submit=false' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "requesterName": "John Doe Updated",
-  "requesterMudid": "JD12345",
-  "requesterEmail": "john.doe@example.com",
-  "datasetName": "Clinical Trial Data",
-  "datasetSmeName": "Jane Smith",
-  "datasetSmeMudid": "JS54321",
-  "datasetSmeEmail": "jane.smith@example.com",
-  "requestRationaleReason": "For statistical analysis",
-  "datasetOriginSource": "Internal Research",
-  "currentDataLocationRef": "Data Warehouse",
-  "dataLocationPath": "/data/warehouse/clinical_trials",
-  "meteorSpaceDominoUsageFlag": true,
-  "ihdFlag": false,
-  "datasetRequiredForRef": "Exploration",
-  "estimatedDataVolumeRef": "500GB",
-  "dataRefreshFrequency": "Monthly",
-  "analysisInitDt": "2024-01-01T00:00:00Z",
-  "analysisEndDt": "2024-12-31T23:59:59Z",
-  "dtaContractCompleteFlag": true,
-  "dtaExpectedCompletionDate": "2024-06-30T00:00:00Z",
-  "dataCategoryRefs": ["Clinical", "Genomics"],
-  "datasetTypeRef": "Clinical Trial Data",
-  "studyIds": ["ST123", "ST456"],
-  "datasetOwnerName": "Alice Johnson",
-  "datasetOwnerMudid": "AJ67890",
-  "datasetOwnerEmail": "alice.johnson@example.com",
-  "datasetStewardName": "Bob Williams",
-  "datasetStewardMudid": "BW09876",
-  "datasetStewardEmail": "bob.williams@example.com",
-  "contractPartner": "XYZ Pharmaceuticals",
-  "retentionRules": "7 years",
-  "retentionRulesContractDate": "2024-01-01T00:00:00Z",
-  "usageRestrictions": ["Internal Use Only", "Confidential"],
-  "userRestrictions": ["Role-Based Access", "Restricted Access"],
-  "informationClassificationTypeRef": "Confidential",
-  "piiTypeRef": "None",
-  "therapyAreas": ["Cardiology", "Neurology"],
-  "techniqueAndAssays": ["PCR", "ELISA"],
-  "indications": ["Hypertension", "Alzheimer'\''s Disease"],
-  "targetIngestionStartDate": "2024-07-01T00:00:00Z",
-  "targetIngestionEndDate": "2024-07-31T23:59:59Z",
-  "targetPath": "/data/ingestion/clinical_trials",
-  "datasetTypeIngestionRef": "Batch",
-  "guestUsersEmail": ["guest1@example.com", "guest2@example.com"],
-  "whitelistIpAddresses": ["192.168.1.1", "192.168.1.2"],
-  "externalStagingContainerName": "staging-container",
-  "domainRequestId": "DR78901",
-  "externalDataSourceLocation": "/external/source/location",
-  "gskAccessSourceLocationRef": "GSK Internal Server",
-  "externalSourceSecretKeyName": "external-secret-key"
-}'
 ```
-**Response:** JSON object with updated details of the ingestion request.
-
-
-### 4. Get Ingestion Requests with Filters
-Retrieve a list of ingestion requests with specified filters.
-
-**Endpoint:** `GET /api/v1/ingestion_requests?my_approvals=false&my_submissions=true&status=All&page=1&per_page=20&order_by=MODIFIED_DATE&order_direction=DESC`
-
-**Request:**
-```sh
-curl -X 'GET' \
-  'http://localhost:3000/api/v1/ingestion_requests?my_approvals=false&my_submissions=true&status=All&page=1&per_page=20&order_by=MODIFIED_DATE&order_direction=DESC' \
-  -H 'accept: */*'
- ```
- **Response:**  JSON object with details of the ingestion request.
+**Note:** Update `apiUrl` with your backend API URL, including the correct port and domain if different from `localhost:3000`.
 
 
 #
- ## Ingestion Request Status
+## Running the Application
 
- ### 1. Submit Ingestion Request
-Submit a specific ingestion request.
+To run your integrated application, follow these steps:
+1. **Start Backend Server:** Ensure your backend server is running. Navigate to the backend project directory and start the server using the appropriate command.
 
-**Endpoint:** `PUT /api/v1/ingestion_requests/16/submit`
-
-**Request:**
+2. **Start Angular Development Server:** Navigate to your Angular project directory and start the development server:
 ```sh
-curl -X 'PUT' \
-  'http://localhost:3000/api/v1/ingestion_requests/16/submit' \
-  -H 'accept: */*'
-  ```
-  **Response:** Status update from DRAFT to TRIAGE PENDING APPROVAL
+ ng serve
+```
 
-### 2. Reject Ingestion Request
-Reject a specific ingestion request with comments.
+3. **Access the Application:** Open your web browser and navigate to http://localhost:4200 (or your custom Angular application URL). Ensure that the backend API calls from Angular to the backend server are working as expected without CORS errors.
 
-**Endpoint:** `PUT /api/v1/ingestion_requests/15/reject`
-
-**Request:**
-```sh
-curl -X 'PUT' \
-  'http://localhost:3000/api/v1/ingestion_requests/15/reject' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "decisionComments": "decisionComments",
-  "notifyThroughEmail": true,
-  "rejectionReason": "rejectionReason",
-  "existingDataLocationIdentified": "existingDataLocationIdentified"
-}'
-  ```
-  **Response:** Status update from TRIAGE PENDING APPROVAL to REJECTED
-
-  ### 3. Approve Ingestion Request
-Approve a specific ingestion request.
-
-**Endpoint:** `PUT /api/v1/ingestion_requests/15/approve`
-
-**Request:**
-```sh
-curl -X 'PUT' \
-  'http://localhost:3000/api/v1/ingestion_requests/16/approve' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "decisionComments": "decisionComments",
-  "notifyThroughEmail": true
-}'
-  ```
-  **Response:** Status update from TRIAGE PENDING APPROVAL to APPROVED
-  
-### 4. Mark Ingestion Request as In Progress
-Mark a specific ingestion request as ingestion in progress.
-
-**Endpoint:** `PUT /api/v1/ingestion_requests/16/ingestion_in_progress`
-
-**Request:**
-```sh
-curl -X 'PUT' \
-  'http://localhost:3000/api/v1/ingestion_requests/16/ingestion_in_progress' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "decisionComments": "decisionComments",
-  "notifyThroughEmail": true
-}'
-  ```
-  **Response:** Status update from APPROVED to INGESTION_IN_PROGRESS
-
-### 5. Mark Ingestion Request as Failed
-Mark a specific ingestion request as ingestion failure.
-
-**Endpoint:** `PUT /api/v1/ingestion_requests/16/ingestion_failure`
-
-**Request:**
-```sh
-curl -X 'PUT' \
-  'http://localhost:3000/api/v1/ingestion_requests/16/ingestion_failure' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "decisionComments": "decisionComments",
-  "notifyThroughEmail": true
-}'
-  ```
-  **Response:** Status update from INGESTION_IN_PROGRESS to INGESTION_FAILURE
-  
-### 6. Mark Ingestion Request as Complete
-Mark a specific ingestion request as ingestion complete.
-
-**Endpoint:** `PUT /api/v1/ingestion_requests/16/ingestion_complete`
-
-**Request:**
-```sh
-curl -X 'PUT' \
-  'http://localhost:3000/api/v1/ingestion_requests/16/ingestion_complete' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "decisionComments": "decisionComments",
-  "notifyThroughEmail": true
-}'
-  ```
-  **Response:** Status update from INGESTION_IN_PROGRESS to INGESTION_COMPLETED
-
-  #
-
-## Ingestion Request Note
-
-### 1. Add a Note to Ingestion Request
-Add a new note to a specific ingestion request.
-
-**Endpoint:** `POST /api/v1/ingestion_requests/16/notes`
-
-**Request:**
-```sh
-curl -X 'POST' \
-  'http://localhost:3000/api/v1/ingestion_requests/16/notes' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "notes": "demoNotes"
-}'
-
-  ```
-  **Response:** JSON data of added note
-
-### 2. Update Ingestion Request Note by ID
-Update a note on a specific ingestion request.
-
-**Endpoint:** `PUT /api/v1/ingestion_requests/16/notes/5`
-
-**Request:**
-```sh
-curl -X 'PUT' \
-  'http://localhost:3000/api/v1/ingestion_requests/16/notes/5' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "notes": "updatedNotes"
-}'
-  ```
-  **Response:** JSON data of updated note
-
-### 3.  Delete Ingestion Request Note by ID
-Delete a note from a specific ingestion request.
-
-**Endpoint:** `DELETE /api/v1/ingestion_requests/16/notes/5`
-
-**Request:**
-```sh
-curl -X 'DELETE' \
-  'http://localhost:3000/api/v1/ingestion_requests/16/notes/5' \
-  -H 'accept: */*'
-  ```
-  **Response:** Deleted the note successfully
-
-  #
-## Application Reference
-### 1.  Get Application References
-Retrieve a list of application references.
-
-**Endpoint:** `GET /api/v1/application_references`
-
-**Request:**
-```sh
-curl -X 'GET' \
-  'http://localhost:3000/api/v1/application_references' \
-  -H 'accept: */*'
-  ```
-  **Response:** JSON data of all application refereences sorted by refrence_order
 #
-## Swagger Documentation
 
-We have also implemented Swagger documentation for the APIs. You can access it through the following link: [Swagger Documentation](http://localhost:3000/api/v1/swagger-ui.html)
-
-
-  
-
-
-
-
+## Conclusion
+By following the steps outlined in this document, you should have successfully integrated the Ingestion Request API with your Angular application. Ensure all configurations are correctly set up to facilitate smooth communication between the frontend and backend modules.
